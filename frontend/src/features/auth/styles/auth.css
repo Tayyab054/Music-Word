@@ -1,0 +1,271 @@
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+  padding: 20px;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 450px;
+}
+
+.auth-card {
+  background: #282828;
+  border-radius: 8px;
+  padding: 40px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.auth-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.auth-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.auth-subtitle {
+  font-size: 1.25rem;
+  color: #b3b3b3;
+  text-align: center;
+  margin-bottom: 32px;
+  font-weight: 400;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.auth-description {
+  color: #b3b3b3;
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.auth-field input,
+.auth-field select {
+  padding: 14px 16px;
+  border-radius: 4px;
+  border: 1px solid #535353;
+  background: #3e3e3e;
+  color: #fff;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-field input:focus,
+.auth-field select:focus {
+  outline: none;
+  border-color: #1db954;
+  box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.2);
+}
+
+.auth-field input::placeholder {
+  color: #a0a0a0;
+}
+
+.field-error {
+  color: #f15e6c;
+  font-size: 0.8rem;
+}
+
+.auth-error {
+  background: rgba(241, 94, 108, 0.1);
+  border: 1px solid #f15e6c;
+  color: #f15e6c;
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.auth-button {
+  padding: 14px 32px;
+  border-radius: 500px;
+  border: none;
+  background: #1db954;
+  color: #000;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s, background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.auth-button:hover:not(:disabled) {
+  transform: scale(1.02);
+  background: #1ed760;
+}
+
+.auth-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.auth-button.google-button {
+  background: #fff;
+  color: #000;
+}
+
+.auth-button.google-button:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #b3b3b3;
+  font-size: 0.9rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #535353;
+}
+
+.auth-link {
+  color: #1db954;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-switch {
+  color: #b3b3b3;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.auth-resend {
+  color: #b3b3b3;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.resend-button {
+  background: none;
+  border: none;
+  color: #1db954;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.resend-button:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.resend-button:disabled {
+  color: #666;
+  cursor: not-allowed;
+}
+
+/* OTP Input Styles */
+.otp-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.otp-input {
+  width: 50px;
+  height: 60px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  border: 2px solid #535353;
+  border-radius: 8px;
+  background: #3e3e3e;
+  color: #fff;
+  transition: border-color 0.2s;
+}
+
+.otp-input:focus {
+  outline: none;
+  border-color: #1db954;
+}
+
+/* Input with status */
+.input-with-status {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-status input {
+  flex: 1;
+  padding-right: 40px;
+}
+
+.input-status {
+  position: absolute;
+  right: 12px;
+  font-size: 1.2rem;
+}
+
+.input-status.checking {
+  color: #b3b3b3;
+}
+
+.input-status.available {
+  color: #1db954;
+}
+
+.input-status.taken {
+  color: #f15e6c;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 24px;
+  }
+
+  .auth-title {
+    font-size: 1.5rem;
+  }
+
+  .auth-subtitle {
+    font-size: 1rem;
+  }
+
+  .otp-input {
+    width: 40px;
+    height: 50px;
+    font-size: 1.25rem;
+  }
+}

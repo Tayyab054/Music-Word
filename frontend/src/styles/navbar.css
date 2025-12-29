@@ -1,0 +1,207 @@
+/* ========================= NAVBAR BASE ========================= */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: linear-gradient(90deg, #1f1f1f, #121212);
+  padding: 0 clamp(16px, 4vw, 32px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid #2a2a2a;
+}
+
+/* ========================= FLEX CONTAINERS ========================= */
+.nav-left,
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3vw, 32px);
+}
+
+.nav-left {
+  flex: 1;
+}
+
+/* ========================= BRAND ========================= */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  font-size: clamp(18px, 2.5vw, 24px);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.brand img {
+  width: 32px;
+  height: 32px;
+}
+
+/* ========================= SEARCH BAR ========================= */
+.search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(400px, 40vw);
+  padding: 8px 16px;
+  background: #2a2a2a;
+  border-radius: 24px;
+}
+
+.search input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+}
+
+/* ========================= LINKS ========================= */
+.link {
+  color: #b3b3b3;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+.link:hover {
+  color: #fff;
+}
+
+/* ========================= MOBILE SEARCH ICON ========================= */
+.icon.mobile {
+  display: none;
+  background: none;
+  border: none;
+  color: #b3b3b3;
+  font-size: 20px;
+}
+
+/* ========================= PROFILE ========================= */
+.profile-wrapper {
+  position: relative;
+}
+
+.profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+}
+
+.profile-menu {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  width: 240px;
+  background: #282828;
+  border-radius: 8px;
+  padding: 12px 0;
+  z-index: 1100;
+}
+
+.profile-info {
+  padding: 12px 20px;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.profile-menu a,
+.profile-menu button {
+  display: block;
+  width: 100%;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  color: #b3b3b3;
+  text-align: left;
+}
+
+/* ========================= MOBILE FIX ========================= */
+@media (max-width: 768px) {
+  .brand span {
+    display: none;
+  }
+
+  .search {
+    display: none;
+  }
+
+  .navbar.search-open .search {
+    display: flex;
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    top: 8px;
+  }
+
+  .icon.mobile {
+    display: block;
+  }
+
+  /* ❌ Hide Library from navbar */
+  .nav-right .link {
+    display: none;
+  }
+
+  /* ✅ Show Library in profile menu */
+  .profile-library {
+    display: block;
+  }
+}
+
+/* Desktop: hide library inside profile */
+.profile-library {
+  display: none;
+}
+
+/* ========================= AUTH BUTTONS ========================= */
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.signup-btn {
+  color: #b3b3b3;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  transition: color 0.2s;
+}
+
+.signup-btn:hover {
+  color: #fff;
+}
+
+.login-btn {
+  background: #fff;
+  color: #000;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 12px 32px;
+  border-radius: 24px;
+  transition: all 0.2s;
+}
+
+.login-btn:hover {
+  transform: scale(1.02);
+}
+
+/* Admin link */
+.admin-link {
+  color: #1db954;
+  font-weight: 600;
+}
+
+.admin-link:hover {
+  color: #1ed760;
+}

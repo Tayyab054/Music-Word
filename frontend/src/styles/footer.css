@@ -1,0 +1,77 @@
+.footer {
+  background: #000;
+  color: #fff;
+  padding: 5rem 2.5rem 2.5rem;
+  font-size: 0.875rem;
+}
+
+.container {
+  max-width: 100rem;
+  margin: auto;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 3.75rem;
+}
+
+.logo {
+  width: 4rem;
+  height: 4rem;
+}
+
+.links {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(8.75rem, 1fr));
+  gap: 2.5rem;
+}
+
+.links h4 {
+  margin-bottom: 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #919496;
+  text-transform: uppercase;
+}
+
+.links a {
+  display: block;
+  margin-bottom: 0.625rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.links a:hover {
+  color: #1db954;
+}
+
+.social {
+  display: flex;
+  gap: 0.9375rem;
+}
+
+.social a {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: #222;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.bottom {
+  margin-top: 3.75rem;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #919496;
+}
+
+@media (max-width: 56.25rem) {
+  .container {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .links {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
