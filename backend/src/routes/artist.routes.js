@@ -5,6 +5,7 @@ import {
   getArtistsByCategory,
   getRelatedArtists,
   getAllCategories,
+  getArtistPlaylist,
 } from "../controllers/artist.controller.js";
 
 const artistRoutes = Router();
@@ -20,6 +21,9 @@ artistRoutes.get("/category/:category", getArtistsByCategory);
 
 // Get artist by ID (includes songs)
 artistRoutes.get("/:id", getArtistById);
+
+// Get artist's playlist (songs only) - uses in-memory cache
+artistRoutes.get("/:id/playlist", getArtistPlaylist);
 
 // Get related artists
 artistRoutes.get("/:id/related", getRelatedArtists);

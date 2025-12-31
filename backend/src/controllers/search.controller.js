@@ -1,8 +1,19 @@
-import memoryStore from "../store/memoryStore.js";
+/**
+ * Search Controller
+ * =================
+ * Handles search-related HTTP requests.
+ *
+ * Uses Trie data structure for autocomplete:
+ * - Time Complexity: O(m + k) where m = prefix length, k = result count
+ * - Case-insensitive matching
+ */
 
-/* ========================= SEARCH ========================= */
+import * as searchService from "../services/search.service.js";
 
-// Global search (songs and artists)
+/**
+ * GET /api/search
+ * Global search (songs and artists)
+ */
 export function search(req, res) {
   try {
     const { q, limit } = req.query;
@@ -16,7 +27,7 @@ export function search(req, res) {
     }
 
     const searchLimit = parseInt(limit) || 20;
-    const results = memoryStore.search(q.trim(), searchLimit);
+    const results = searchService.search(q.trim(), searchLimit);
 
     res.json({
       success: true,
@@ -29,7 +40,10 @@ export function search(req, res) {
   }
 }
 
-// Search songs only
+/**
+ * GET /api/search/songs
+ * Search songs only using Trie autocomplete
+ */
 export function searchSongs(req, res) {
   try {
     const { q, limit } = req.query;
@@ -42,7 +56,7 @@ export function searchSongs(req, res) {
     }
 
     const searchLimit = parseInt(limit) || 20;
-    const songs = memoryStore.searchSongs(q.trim(), searchLimit);
+    const songs = searchService.searchSongs(q.trim(), searchLimit);
 
     res.json({
       success: true,
@@ -56,7 +70,10 @@ export function searchSongs(req, res) {
   }
 }
 
-// Search artists only
+/**
+ * GET /api/search/artists
+ * Search artists only
+ */
 export function searchArtists(req, res) {
   try {
     const { q, limit } = req.query;
@@ -69,7 +86,7 @@ export function searchArtists(req, res) {
     }
 
     const searchLimit = parseInt(limit) || 20;
-    const artists = memoryStore.searchArtists(q.trim(), searchLimit);
+    const artists = searchService.searchArtists(q.trim(), searchLimit);
 
     res.json({
       success: true,
@@ -83,7 +100,11 @@ export function searchArtists(req, res) {
   }
 }
 
-// Autocomplete suggestions
+/**
+ * GET /api/search/autocomplete
+ * Get autocomplete suggestions for search dropdown
+ * Uses Trie for fast prefix matching
+ */
 export function autocomplete(req, res) {
   try {
     const { q, limit } = req.query;
@@ -96,25 +117,10 @@ export function autocomplete(req, res) {
     }
 
     const searchLimit = parseInt(limit) || 10;
-    const results = memoryStore.search(q.trim(), searchLimit);
-
-    // Combine and format suggestions
-    const suggestions = [
-      ...results.songs.map((s) => ({
-        type: "song",
-        id: s.song_id,
-        title: s.title,
-        subtitle: s.artist_name || "",
-        image: s.image_url,
-      })),
-      ...results.artists.map((a) => ({
-        type: "artist",
-        id: a.artist_id,
-        title: a.artist_name,
-        subtitle: a.category || "",
-        image: a.image_url,
-      })),
-    ].slice(0, searchLimit);
+    const suggestions = searchService.getAutocompleteSuggestions(
+      q.trim(),
+      searchLimit
+    );
 
     res.json({
       success: true,

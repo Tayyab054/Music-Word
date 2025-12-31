@@ -1,12 +1,47 @@
 /**
  * Trie (Prefix Tree) Implementation
- * Used for autocomplete and fast prefix-based song/artist search
+ * ==================================
+ * Used for autocomplete and fast prefix-based song/artist search.
+ *
+ * STRUCTURE:
+ * ----------
+ * Each node contains:
+ * - children: Map of character -> child node
+ * - isEndOfWord: true if a word ends at this node
+ * - data: array of items (songs/artists) stored at this node
+ *
+ * EXAMPLE:
+ * --------
+ * Words: "cat", "car", "card"
+ *
+ *         root
+ *          |
+ *          c
+ *          |
+ *          a
+ *         / \
+ *        t   r
+ *            |
+ *            d
+ *
+ * TIME COMPLEXITY:
+ * ----------------
+ * - insert(word): O(m) where m = word length
+ * - search(word): O(m)
+ * - searchByPrefix(prefix): O(m + k) where k = number of results
+ *
+ * WHY TRIE FOR AUTOCOMPLETE?
+ * --------------------------
+ * - Fast prefix matching without scanning all items
+ * - Memory efficient for words with common prefixes
+ * - Case-insensitive search by converting to lowercase
  */
+
 class TrieNode {
   constructor() {
-    this.children = new Map();
-    this.isEndOfWord = false;
-    this.data = []; // Store all items that match this prefix
+    this.children = new Map(); // char -> TrieNode
+    this.isEndOfWord = false; // Marks complete words
+    this.data = []; // Store items (songs/artists) at word end
   }
 }
 
@@ -16,13 +51,19 @@ class Trie {
     this.size = 0;
   }
 
-  // Insert a word with associated data - O(m) where m is word length
+  /**
+   * Insert a word with associated data - O(m) where m is word length
+   * @param {string} word - The word to insert (e.g., song title)
+   * @param {Object} data - The data to store (e.g., song object)
+   */
   insert(word, data) {
     if (!word || typeof word !== "string") return;
 
+    // Convert to lowercase for case-insensitive search
     const key = word.toLowerCase();
     let current = this.root;
 
+    // Traverse/create path for each character
     for (const char of key) {
       if (!current.children.has(char)) {
         current.children.set(char, new TrieNode());
@@ -31,7 +72,8 @@ class Trie {
     }
 
     current.isEndOfWord = true;
-    // Avoid duplicates
+
+    // Avoid storing duplicates
     const exists = current.data.some(
       (d) => JSON.stringify(d) === JSON.stringify(data)
     );
@@ -41,24 +83,39 @@ class Trie {
     }
   }
 
-  // Search for exact word - O(m)
+  /**
+   * Search for exact word - O(m)
+   * @param {string} word - Word to find
+   * @returns {Array} Data stored at that word, or empty array
+   */
   search(word) {
     const node = this._getNode(word);
     return node && node.isEndOfWord ? node.data : [];
   }
 
-  // Check if word exists - O(m)
+  /**
+   * Check if word exists - O(m)
+   */
   contains(word) {
     const node = this._getNode(word);
     return node !== null && node.isEndOfWord;
   }
 
-  // Check if any word starts with prefix - O(m)
+  /**
+   * Check if any word starts with prefix - O(m)
+   */
   startsWith(prefix) {
     return this._getNode(prefix) !== null;
   }
 
-  // Get all words with prefix - O(m + n) where n is number of results
+  /**
+   * Get all items with matching prefix - O(m + k)
+   * This is the main autocomplete function.
+   *
+   * @param {string} prefix - The search prefix
+   * @param {number} limit - Maximum results to return
+   * @returns {Array} Matching items (songs/artists)
+   */
   searchByPrefix(prefix, limit = 50) {
     const node = this._getNode(prefix);
     if (!node) return [];
@@ -68,7 +125,10 @@ class Trie {
     return results;
   }
 
-  // Get node at end of prefix - O(m)
+  /**
+   * Get node at end of prefix - O(m)
+   * Internal helper function.
+   */
   _getNode(prefix) {
     if (!prefix || typeof prefix !== "string") return null;
 
@@ -85,10 +145,14 @@ class Trie {
     return current;
   }
 
-  // Collect all data from node and descendants - O(n)
+  /**
+   * Collect all data from node and descendants - O(k)
+   * Internal helper for searchByPrefix.
+   */
   _collectAllData(node, results, limit) {
     if (results.length >= limit) return;
 
+    // Collect data at this node
     if (node.isEndOfWord) {
       for (const data of node.data) {
         if (results.length >= limit) break;
@@ -96,13 +160,19 @@ class Trie {
       }
     }
 
+    // Recursively collect from children
     for (const child of node.children.values()) {
       if (results.length >= limit) break;
       this._collectAllData(child, results, limit);
     }
   }
 
-  // Delete a word - O(m)
+  /**
+   * Delete a word - O(m)
+   * @param {string} word - Word to delete
+   * @param {Object} data - Specific data to remove (optional)
+   * @returns {boolean} True if deleted
+   */
   delete(word, data = null) {
     if (!word || typeof word !== "string") return false;
 
@@ -113,7 +183,7 @@ class Trie {
         if (!node.isEndOfWord) return false;
 
         if (data) {
-          // Remove specific data
+          // Remove specific data item
           const idx = node.data.findIndex(
             (d) => JSON.stringify(d) === JSON.stringify(data)
           );
@@ -131,6 +201,7 @@ class Trie {
           node.isEndOfWord = false;
         }
 
+        // Return true if node can be deleted (no children)
         return node.children.size === 0;
       }
 
@@ -153,17 +224,23 @@ class Trie {
     return deleteHelper(this.root, 0);
   }
 
-  // Get autocomplete suggestions
+  /**
+   * Alias for searchByPrefix - for convenience
+   */
   autocomplete(prefix, limit = 10) {
     return this.searchByPrefix(prefix, limit);
   }
 
-  // Get size
+  /**
+   * Get total number of items stored
+   */
   getSize() {
     return this.size;
   }
 
-  // Clear
+  /**
+   * Clear all data
+   */
   clear() {
     this.root = new TrieNode();
     this.size = 0;

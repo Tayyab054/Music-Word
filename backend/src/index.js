@@ -1,13 +1,13 @@
 import "dotenv/config";
 import app from "./app.js";
+import cacheService from "./services/cache.service.js";
 import memoryStore from "./store/memoryStore.js";
 
 const port = process.env.SERVER_PORT;
 
-// Initialize in-memory store before starting server
 async function startServer() {
   try {
-    // Load all data from PostgreSQL into memory
+    await cacheService.initialize();
     await memoryStore.initialize();
 
     app.listen(port, () => {
