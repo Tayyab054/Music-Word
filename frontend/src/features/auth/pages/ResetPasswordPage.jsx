@@ -26,10 +26,10 @@ export default function ResetPasswordPage() {
           !data.verified ||
           data.flow !== "reset-password"
         ) {
-          navigate("/forgot-password");
+          navigate("/auth/forgot-password");
         }
       } catch (err) {
-        navigate("/forgot-password");
+        navigate("/auth/forgot-password");
       }
     };
     checkSession();
@@ -67,7 +67,7 @@ export default function ResetPasswordPage() {
     const result = await resetPassword(formData.password);
 
     if (result.success) {
-      navigate("/login");
+      navigate("/auth/login");
     } else {
       setErrors({ general: result.message });
     }

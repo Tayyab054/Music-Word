@@ -7,8 +7,28 @@ import {
   useCallback,
 } from "react";
 import { songApi } from "../features/songs/api/songApi";
+import { libraryApi } from "../features/library/api/libraryApi";
 import { useAuth } from "./AuthContext";
 import LinkedList from "../features/songs/utils/LinkedList";
+import Stack from "../utils/Stack";
+
+/**
+ * Player Context
+ * ==============
+ * Manages audio playback state and playlist navigation.
+ *
+ * DATA STRUCTURES USED:
+ * ---------------------
+ * 1. LinkedList (Doubly Linked List) - For playlist navigation
+ *    - Enables O(1) next/previous song navigation
+ *    - Maintains play order and current position
+ *
+ * 2. Stack - For listening history (Recently Played)
+ *    - LIFO: Most recently played song is always on top
+ *    - Automatic duplicate removal (moves to top if replayed)
+ *    - Max 100 songs to prevent memory issues
+ *    - Synced with backend for persistence
+ */
 
 const PlayerContext = createContext(null);
 
@@ -16,7 +36,20 @@ export function PlayerProvider({ children }) {
   const { isAuthenticated } = useAuth();
 
   const audioRef = useRef(new Audio());
-  const playlistRef = useRef(new LinkedList()); // Using LinkedList for navigation
+
+  /**
+   * Playlist as Doubly Linked List
+   * Enables O(1) next/previous navigation
+   */
+  const playlistRef = useRef(new LinkedList());
+
+  /**
+   * History as Stack (LIFO)
+   * Most recently played song is always on top
+   * Automatically handles duplicates by moving replayed songs to top
+   */
+  const historyStackRef = useRef(new Stack(100));
+
   const [currentSong, setCurrentSong] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -25,13 +58,17 @@ export function PlayerProvider({ children }) {
   const [queue, setQueue] = useState([]);
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState("none"); // none, one, all
+  const [history, setHistory] = useState([]); // Array view of history stack
 
-  // Play a song
+  /**
+   * Play a song
+   * Updates both LinkedList (for navigation) and Stack (for history)
+   */
   const playSong = useCallback(
     async (song, playlist = null) => {
       if (!song?.song_url) return;
 
-      // If playlist provided, set up LinkedList
+      // If playlist provided, build LinkedList for navigation
       if (playlist && playlist.length > 0) {
         playlistRef.current.fromArray(playlist);
         playlistRef.current.setCurrent(song.song_id);
@@ -49,10 +86,21 @@ export function PlayerProvider({ children }) {
       setCurrentSong(song);
       audioRef.current.src = song.song_url;
 
+      /**
+       * Push to history Stack
+       * Stack.push() handles duplicates by removing existing and adding to top
+       */
+      historyStackRef.current.push({
+        ...song,
+        played_at: new Date().toISOString(),
+      });
+      // Update React state with array view of stack
+      setHistory(historyStackRef.current.toArray());
+
       try {
         await audioRef.current.play();
 
-        // Record play to history if authenticated
+        // Record play to backend if authenticated
         if (isAuthenticated) {
           songApi.play(song.song_id).catch(() => {});
         }
@@ -63,7 +111,10 @@ export function PlayerProvider({ children }) {
     [isAuthenticated]
   );
 
-  // Next song
+  /**
+   * Handle next song using LinkedList navigation
+   * LinkedList.getNext() is O(1)
+   */
   const handleNext = useCallback(() => {
     if (playlistRef.current.isEmpty()) return;
 
@@ -75,11 +126,13 @@ export function PlayerProvider({ children }) {
 
     let nextSong;
     if (shuffle) {
+      // Random selection for shuffle mode
       const allSongs = playlistRef.current.toArray();
       const randomIndex = Math.floor(Math.random() * allSongs.length);
       nextSong = allSongs[randomIndex];
       playlistRef.current.setCurrent(nextSong.song_id);
     } else {
+      // Use LinkedList for O(1) navigation
       nextSong = playlistRef.current.getNext();
       if (!nextSong && repeat === "all") {
         // Loop back to start
@@ -127,6 +180,45 @@ export function PlayerProvider({ children }) {
     audioRef.current.volume = volume;
   }, [volume]);
 
+  /**
+   * Load persisted history from backend when user is authenticated
+   * This syncs the Stack with previously played songs from the database
+   */
+  useEffect(() => {
+    const loadPersistedHistory = async () => {
+      if (!isAuthenticated) {
+        // Clear history when logged out
+        historyStackRef.current.clear();
+        setHistory([]);
+        return;
+      }
+
+      try {
+        const response = await libraryApi.getHistory(100);
+        const persistedHistory = response.data?.history || [];
+
+        // Clear current stack and rebuild from persisted data
+        historyStackRef.current.clear();
+
+        // Add in reverse order since history comes newest-first from API
+        // but we want to push oldest first so newest ends up on top
+        const reversedHistory = [...persistedHistory].reverse();
+        for (const song of reversedHistory) {
+          historyStackRef.current.push({
+            ...song,
+            played_at: song.played_at || new Date().toISOString(),
+          });
+        }
+
+        setHistory(historyStackRef.current.toArray());
+      } catch (err) {
+        console.error("Failed to load history:", err);
+      }
+    };
+
+    loadPersistedHistory();
+  }, [isAuthenticated]);
+
   // Toggle play/pause
   const togglePlay = () => {
     if (!currentSong) return;
@@ -138,12 +230,17 @@ export function PlayerProvider({ children }) {
     }
   };
 
-  // Seek
+  /**
+   * Seek to position in track
+   */
   const seek = (time) => {
     audioRef.current.currentTime = time;
   };
 
-  // Previous song
+  /**
+   * Handle previous song using LinkedList navigation
+   * LinkedList.getPrevious() is O(1)
+   */
   const handlePrevious = () => {
     if (playlistRef.current.isEmpty()) return;
 
@@ -153,6 +250,7 @@ export function PlayerProvider({ children }) {
       return;
     }
 
+    // Use LinkedList for O(1) navigation
     const prevSong = playlistRef.current.getPrevious();
     if (prevSong) {
       playSong(prevSong);
@@ -166,12 +264,16 @@ export function PlayerProvider({ children }) {
     }
   };
 
-  // Toggle shuffle
+  /**
+   * Toggle shuffle mode
+   */
   const toggleShuffle = () => {
     setShuffle(!shuffle);
   };
 
-  // Cycle repeat mode
+  /**
+   * Cycle through repeat modes: none -> all -> one -> none
+   */
   const toggleRepeat = () => {
     const modes = ["none", "all", "one"];
     const currentIndex = modes.indexOf(repeat);
@@ -179,16 +281,45 @@ export function PlayerProvider({ children }) {
     setRepeat(modes[nextIndex]);
   };
 
-  // Add to queue
+  /**
+   * Add song to queue (end of LinkedList)
+   */
   const addToQueue = (song) => {
     playlistRef.current.append(song);
     setQueue((prev) => [...prev, song]);
   };
 
-  // Clear queue
+  /**
+   * Clear the queue (LinkedList)
+   */
   const clearQueue = () => {
     playlistRef.current.clear();
     setQueue([]);
+  };
+
+  /**
+   * Clear listening history (Stack and backend)
+   */
+  const clearHistory = async () => {
+    historyStackRef.current.clear();
+    setHistory([]);
+
+    // Also clear on backend if authenticated
+    if (isAuthenticated) {
+      try {
+        await libraryApi.clearHistory();
+      } catch (err) {
+        console.error("Failed to clear history on backend:", err);
+      }
+    }
+  };
+
+  /**
+   * Get listening history as array (from Stack)
+   * Returns most recent first (LIFO order)
+   */
+  const getHistory = () => {
+    return historyStackRef.current.toArray();
   };
 
   const value = {
@@ -200,6 +331,7 @@ export function PlayerProvider({ children }) {
     queue,
     shuffle,
     repeat,
+    history,
     playSong,
     togglePlay,
     seek,
@@ -210,6 +342,8 @@ export function PlayerProvider({ children }) {
     toggleRepeat,
     addToQueue,
     clearQueue,
+    clearHistory,
+    getHistory,
   };
 
   return (

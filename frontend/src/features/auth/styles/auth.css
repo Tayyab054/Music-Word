@@ -44,7 +44,12 @@
 .auth-logo {
   display: flex;
   justify-content: center;
-  margin-bottom: 24px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.auth-logo svg {
+  display: block;
 }
 
 .auth-title {
@@ -290,4 +295,178 @@
     height: 50px;
     font-size: 1.25rem;
   }
+}
+
+/* Password Strength Indicator */
+.password-strength {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.strength-bar {
+  flex: 1;
+  height: 4px;
+  background: #3e3e3e;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  border-radius: 2px;
+}
+
+.strength-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 70px;
+  text-align: right;
+}
+
+/* Password Requirements */
+.password-requirements {
+  background: #1a1a1a;
+  border: 1px solid #3e3e3e;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: -8px;
+}
+
+.requirements-title {
+  color: #b3b3b3;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.requirements-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.requirements-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+  transition: color 0.2s ease;
+}
+
+.requirements-list li.valid {
+  color: #1db954;
+}
+
+.requirements-list li.invalid {
+  color: #f15e6c;
+}
+
+.requirements-list li svg {
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+/* Input error state */
+.auth-field input.input-error {
+  border-color: #f15e6c;
+}
+
+.auth-field input.input-error:focus {
+  border-color: #f15e6c;
+  box-shadow: 0 0 0 2px rgba(241, 94, 108, 0.2);
+}
+
+/* Spinning animation for loader */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading screen */
+.loading-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #121212;
+  color: #fff;
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #3e3e3e;
+  border-top-color: #1db954;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Auth success message */
+.auth-success {
+  background: rgba(29, 185, 84, 0.1);
+  border: 1px solid #1db954;
+  color: #1db954;
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* OTP Page Enhancements */
+.auth-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.attempts-warning {
+  color: #ff9800;
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0;
+}
+
+.attempts-exhausted {
+  color: #f15e6c;
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0;
+  font-weight: 600;
+}
+
+.otp-resend-section {
+  text-align: center;
+}
+
+.resends-remaining {
+  color: #666;
+  font-size: 0.75rem;
+  margin: 4px 0 0 0;
+}
+
+.resend-exhausted {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* OTP input disabled state */
+.otp-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

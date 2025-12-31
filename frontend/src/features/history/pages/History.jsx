@@ -1,49 +1,41 @@
-import { useState, useEffect } from "react";
+/**
+ * History Page
+ * ============
+ * Displays user's recently played songs.
+ *
+ * DATA STRUCTURE: Stack (LIFO)
+ * ----------------------------
+ * - Most recently played song appears at the top
+ * - Stack is maintained in PlayerContext
+ * - history array is derived from Stack.toArray()
+ *
+ * WHY STACK?
+ * ----------
+ * LIFO (Last In, First Out) is the natural order for "recently played"
+ * - Push when song plays: O(1)
+ * - View history: O(n) to convert to array
+ * - Duplicates automatically moved to top when replayed
+ */
+
+import { useState } from "react";
 import Navbar from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
 import AudioPlayer from "../../player/components/AudioPlayer";
 import ConfirmModal from "../../../components/ConfirmModal";
 import { usePlayer } from "../../../context/PlayerContext";
 import { useAuth } from "../../../context/AuthContext";
-import { libraryApi } from "../../library/api/libraryApi";
 import "../styles/history.css";
 
 const History = () => {
-  const { playSong, currentSong, isPlaying } = usePlayer();
+  const { playSong, currentSong, isPlaying, history, clearHistory } =
+    usePlayer();
   const { isAuthenticated } = useAuth();
-  const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [showClearDialog, setShowClearDialog] = useState(false);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      return;
-    }
-    loadHistory();
-  }, [isAuthenticated]);
-
-  const loadHistory = async () => {
-    try {
-      const response = await libraryApi.getHistory();
-      // Remove duplicates - keep only the most recent play of each song
-      const historyMap = new Map();
-      (response.data?.history || []).forEach((item) => {
-        if (!historyMap.has(item.song_id)) {
-          historyMap.set(item.song_id, item);
-        }
-      });
-
-      // Convert back to array and sort by most recent first
-      const uniqueHistory = Array.from(historyMap.values()).sort(
-        (a, b) => new Date(b.played_at) - new Date(a.played_at)
-      );
-      setHistory(uniqueHistory);
-    } catch (err) {
-      console.error("Error loading history:", err);
-    }
-    setLoading(false);
-  };
-
+  /**
+   * Play song from history
+   * Uses the full history array as playlist for navigation
+   */
   const handlePlay = (song) => {
     playSong(song, history);
   };
@@ -73,14 +65,9 @@ const History = () => {
     });
   };
 
-  const handleClearHistory = async () => {
-    try {
-      await libraryApi.clearHistory();
-      setHistory([]);
-      setShowClearDialog(false);
-    } catch (err) {
-      console.error("Error clearing history:", err);
-    }
+  const handleClearHistory = () => {
+    clearHistory();
+    setShowClearDialog(false);
   };
 
   return (
@@ -102,14 +89,10 @@ const History = () => {
           )}
         </div>
 
-        {loading ? (
-          <div className="loading">
-            <div className="spinner"></div>
-            <p>Loading your history...</p>
-          </div>
-        ) : history.length > 0 ? (
+        {history.length > 0 ? (
           <div className="songs-section">
             <div className="songs-list">
+              {/* History is ordered by Stack (most recent first) */}
               {history.map((item) => {
                 const isActive = currentSong?.song_id === item.song_id;
                 return (

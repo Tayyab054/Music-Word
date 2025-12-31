@@ -59,14 +59,14 @@ const HeroSlider = ({ artists = [], onSlideChange }) => {
             key={artist.artist_id}
             className={`slide ${index === currentSlide ? "active" : ""}`}
             style={{
-              backgroundImage: artist.image_url
-                ? `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('${artist.image_url}')`
-                : "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
+              backgroundColor: "#121212",
             }}
           >
+            <img
+              src={artist.image_url?.trim()}
+              alt={artist.artist_name}
+              className="slide-image"
+            />
             <div className="slide-overlay"></div>
             <div className="slide-content">
               <h2>{artist.artist_name}</h2>

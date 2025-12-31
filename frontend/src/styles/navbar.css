@@ -92,35 +92,167 @@
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: #fff;
-  border: none;
+  border: 2px solid transparent;
   font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-avatar:hover {
+  border-color: #1db954;
+  transform: scale(1.05);
 }
 
 .profile-menu {
   position: absolute;
   top: 52px;
   right: 0;
-  width: 240px;
-  background: #282828;
-  border-radius: 8px;
-  padding: 12px 0;
+  width: 280px;
+  background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+  border-radius: 12px;
+  padding: 0;
   z-index: 1100;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  border: 1px solid #3a3a3a;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
 }
 
-.profile-info {
-  padding: 12px 20px;
-  border-bottom: 1px solid #3a3a3a;
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.profile-menu a,
-.profile-menu button {
-  display: block;
+/* Profile Header */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.15),
+    rgba(118, 75, 162, 0.15)
+  );
+}
+
+.profile-avatar-large {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-weight: 700;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.profile-details strong {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-details small {
+  color: #a0a0a0;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Divider */
+.profile-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #3a3a3a, transparent);
+  margin: 0;
+}
+
+/* Menu Items Container */
+.profile-menu-items {
+  padding: 8px 0;
+}
+
+/* Menu Item */
+.profile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   width: 100%;
   padding: 12px 20px;
   background: none;
   border: none;
   color: #b3b3b3;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
   text-align: left;
+}
+
+.profile-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.profile-menu-item .menu-icon {
+  font-size: 16px;
+  opacity: 0.8;
+  width: 20px;
+  flex-shrink: 0;
+}
+
+.profile-menu-item:hover .menu-icon {
+  opacity: 1;
+}
+
+/* Admin Item */
+.profile-menu-item.admin-item {
+  color: #1db954;
+}
+
+.profile-menu-item.admin-item:hover {
+  color: #1ed760;
+  background: rgba(29, 185, 84, 0.1);
+}
+
+/* Logout Item */
+.profile-menu-item.logout-item {
+  padding: 14px 20px;
+  color: #ff6b6b;
+}
+
+.profile-menu-item.logout-item:hover {
+  background: rgba(255, 107, 107, 0.1);
+  color: #ff5252;
+}
+
+/* Hide profile menu items on desktop, show on mobile */
+@media (min-width: 769px) {
+  .profile-menu-items .profile-menu-item[href="/library"],
+  .profile-menu-items .profile-menu-item[href="/history"] {
+    display: none;
+  }
 }
 
 /* ========================= MOBILE FIX ========================= */
@@ -145,20 +277,16 @@
     display: block;
   }
 
-  /* ❌ Hide Library from navbar */
+  /* Hide Library & History from navbar on mobile */
   .nav-right .link {
     display: none;
   }
 
-  /* ✅ Show Library in profile menu */
-  .profile-library {
-    display: block;
+  /* Show all menu items in profile menu on mobile */
+  .profile-menu-items .profile-menu-item[href="/library"],
+  .profile-menu-items .profile-menu-item[href="/history"] {
+    display: flex !important;
   }
-}
-
-/* Desktop: hide library inside profile */
-.profile-library {
-  display: none;
 }
 
 /* ========================= AUTH BUTTONS ========================= */
