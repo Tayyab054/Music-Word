@@ -9,8 +9,7 @@ import {
   Queue,
   BinarySearchTree,
   Trie,
-  Graph,
-  Heap,
+  Stack,
 } from "../dataStructures/index.js";
 import db from "../config/db.config.js";
 
@@ -25,7 +24,7 @@ class MemoryStore {
     // User libraries: userId -> LinkedList of songIds
     this.userLibraries = new HashMap(1000);
 
-    // User song history: userId -> Queue of {songId, playedAt}
+    // User song history: userId -> Stack of {songId, playedAt} (LIFO - last listened on top)
     this.userHistory = new HashMap(1000);
 
     // BST for sorted search by title/name
@@ -35,12 +34,6 @@ class MemoryStore {
     // Trie for autocomplete search
     this.songSearchTrie = new Trie();
     this.artistSearchTrie = new Trie();
-
-    // Graph for artist relationships (same category = related)
-    this.artistGraph = new Graph(false);
-
-    // Heap for popular songs (by play count)
-    this.popularSongs = new Heap((a, b) => a - b, "max");
 
     // Songs by artist: artistId -> LinkedList of songs
     this.songsByArtist = new HashMap(100);
@@ -67,7 +60,6 @@ class MemoryStore {
       await this.loadUsers();
       await this.loadUserLibraries();
       await this.loadUserHistory();
-      await this.buildRelationships();
 
       this.initialized = true;
       console.log("✅ In-memory store initialized successfully!");
@@ -94,9 +86,6 @@ class MemoryStore {
       // Add to Trie for autocomplete
       this.artistSearchTrie.insert(artist.artist_name, artist);
 
-      // Add to graph
-      this.artistGraph.addVertex(artist.artist_id, artist);
-
       // Track categories
       if (artist.category) {
         if (!this.categories.has(artist.category)) {
@@ -121,6 +110,11 @@ class MemoryStore {
     `);
 
     for (const song of rows) {
+      // Ensure each song has artwork; generate deterministic placeholder when missing
+      if (!song.image_url) {
+        song.image_url = `https://picsum.photos/seed/song-${song.song_id}/400`;
+      }
+
       // Store in HashMap
       this.songs.set(song.song_id, song);
 
@@ -200,9 +194,9 @@ class MemoryStore {
 
     for (const entry of rows) {
       if (!this.userHistory.has(entry.user_id)) {
-        this.userHistory.set(entry.user_id, new Queue(100)); // Keep last 100
+        this.userHistory.set(entry.user_id, new Stack(100)); // Keep last 100
       }
-      this.userHistory.get(entry.user_id).enqueue({
+      this.userHistory.get(entry.user_id).push({
         songId: entry.song_id,
         playedAt: entry.played_at,
       });
@@ -212,49 +206,7 @@ class MemoryStore {
       this.playCounts.set(entry.song_id, currentCount + 1);
     }
 
-    // Build popular songs heap
-    this.rebuildPopularSongsHeap();
-
     console.log(`  📦 Loaded ${rows.length} history entries`);
-  }
-
-  /**
-   * Build artist relationships based on category
-   */
-  async buildRelationships() {
-    const categories = this.categories.entries();
-
-    for (const [category, artistList] of categories) {
-      const artists = artistList.toArray();
-
-      // Connect all artists in same category
-      for (let i = 0; i < artists.length; i++) {
-        for (let j = i + 1; j < artists.length; j++) {
-          this.artistGraph.addEdge(
-            artists[i].artist_id,
-            artists[j].artist_id,
-            1
-          );
-        }
-      }
-    }
-
-    console.log(
-      `  📦 Built ${this.artistGraph.getEdgeCount()} artist relationships`
-    );
-  }
-
-  /**
-   * Rebuild the popular songs heap
-   */
-  rebuildPopularSongsHeap() {
-    this.popularSongs.clear();
-
-    const songs = this.songs.values();
-    for (const song of songs) {
-      const playCount = this.playCounts.get(song.song_id) || 0;
-      this.popularSongs.insert(song, playCount);
-    }
   }
 
   // ==================== SONG OPERATIONS ====================
@@ -297,13 +249,17 @@ class MemoryStore {
   }
 
   /**
-   * Get popular songs - O(k log n)
+   * Get popular songs - Sort by play count
    */
   getPopularSongs(limit = 10) {
-    return this.popularSongs.getTopN(limit).map((item) => ({
-      ...item.data,
-      playCount: item.priority,
-    }));
+    const songs = this.songs.values();
+    return songs
+      .map((song) => ({
+        ...song,
+        playCount: this.playCounts.get(song.song_id) || 0,
+      }))
+      .sort((a, b) => b.playCount - a.playCount)
+      .slice(0, limit);
   }
 
   /**
@@ -322,6 +278,10 @@ class MemoryStore {
     );
 
     const song = rows[0];
+
+    if (!song.image_url) {
+      song.image_url = `https://picsum.photos/seed/song-${song.song_id}/400`;
+    }
 
     // Add artist info
     const artist = this.artists.get(song.artist_id);
@@ -354,7 +314,6 @@ class MemoryStore {
     }
 
     this.playCounts.set(song.song_id, 0);
-    this.popularSongs.insert(song, 0);
 
     return song;
   }
@@ -383,6 +342,10 @@ class MemoryStore {
     );
 
     const updatedSong = rows[0];
+
+    if (!updatedSong.image_url) {
+      updatedSong.image_url = `https://picsum.photos/seed/song-${updatedSong.song_id}/400`;
+    }
 
     // Add artist info
     const artist = this.artists.get(updatedSong.artist_id);
@@ -452,7 +415,6 @@ class MemoryStore {
     }
 
     this.playCounts.delete(Number(songId));
-    this.rebuildPopularSongsHeap();
 
     return song;
   }
@@ -484,7 +446,16 @@ class MemoryStore {
    * Get related artists - O(V + E)
    */
   getRelatedArtists(artistId, limit = 5) {
-    const related = this.artistGraph.findRelated(Number(artistId), 2);
+    // Get related artists from same category
+    const artist = this.artists.get(Number(artistId));
+    if (!artist) return [];
+
+    const categoryArtists = this.categories.get(artist.category);
+    if (!categoryArtists) return [];
+
+    const related = categoryArtists
+      .toArray()
+      .filter((a) => a.artist_id !== Number(artistId));
     return related
       .slice(0, limit)
       .map((r) => r.data)
@@ -522,21 +493,13 @@ class MemoryStore {
     this.artists.set(artist.artist_id, artist);
     this.artistsByName.insert(artist);
     this.artistSearchTrie.insert(artist.artist_name, artist);
-    this.artistGraph.addVertex(artist.artist_id, artist);
+    // Artist added to category list above
 
     if (artist.category) {
       if (!this.categories.has(artist.category)) {
         this.categories.set(artist.category, new LinkedList());
       }
       this.categories.get(artist.category).append(artist);
-
-      // Connect to other artists in same category
-      const categoryArtists = this.categories.get(artist.category).toArray();
-      for (const other of categoryArtists) {
-        if (other.artist_id !== artist.artist_id) {
-          this.artistGraph.addEdge(artist.artist_id, other.artist_id, 1);
-        }
-      }
     }
 
     return artist;
@@ -595,7 +558,6 @@ class MemoryStore {
     this.artists.delete(Number(artistId));
     this.artistsByName.delete(artist.artist_name);
     this.artistSearchTrie.delete(artist.artist_name, artist);
-    this.artistGraph.removeVertex(Number(artistId));
     this.songsByArtist.delete(Number(artistId));
 
     if (artist.category && this.categories.has(artist.category)) {
@@ -737,7 +699,7 @@ class MemoryStore {
   // ==================== PLAY HISTORY OPERATIONS ====================
 
   /**
-   * Get user play history - O(1) + O(k)
+   * Get user play history - O(1) + O(k) - Stack returns most recent first (LIFO)
    */
   getUserHistory(userId, limit = 50) {
     const history = this.userHistory.get(Number(userId));
@@ -748,13 +710,28 @@ class MemoryStore {
       .slice(0, limit)
       .map((entry) => ({
         ...this.songs.get(entry.songId),
-        playedAt: entry.playedAt,
+        played_at: entry.playedAt,
       }))
       .filter((s) => s.song_id);
   }
 
   /**
-   * Record song play - O(1)
+   * Clear user play history - removes DB rows and in-memory stack
+   */
+  async clearUserHistory(userId) {
+    await db.query("DELETE FROM user_song_history WHERE user_id = $1", [
+      userId,
+    ]);
+
+    if (this.userHistory.has(Number(userId))) {
+      this.userHistory.delete(Number(userId));
+    }
+
+    return { success: true };
+  }
+
+  /**
+   * Record song play - O(1) - Pushes to Stack (most recent on top)
    */
   async recordPlay(userId, songId) {
     const playedAt = new Date();
@@ -765,26 +742,12 @@ class MemoryStore {
     );
 
     if (!this.userHistory.has(Number(userId))) {
-      this.userHistory.set(Number(userId), new Queue(100));
+      this.userHistory.set(Number(userId), new Stack(100));
     }
-    this.userHistory.get(Number(userId)).enqueue({
+    this.userHistory.get(Number(userId)).push({
       songId: Number(songId),
       playedAt,
     });
-
-    // Update play count
-    const currentCount = this.playCounts.get(Number(songId)) || 0;
-    this.playCounts.set(Number(songId), currentCount + 1);
-
-    // Update popular songs heap
-    const song = this.songs.get(Number(songId));
-    if (song) {
-      this.popularSongs.updatePriority(
-        song,
-        currentCount + 1,
-        (a, b) => a.song_id === b.song_id
-      );
-    }
 
     return { success: true };
   }
@@ -812,7 +775,6 @@ class MemoryStore {
     console.log(`  Artists: ${this.artists.getSize()}`);
     console.log(`  Users: ${this.users.getSize()}`);
     console.log(`  Categories: ${this.categories.getSize()}`);
-    console.log(`  Artist Relationships: ${this.artistGraph.getEdgeCount()}`);
     console.log("");
   }
 

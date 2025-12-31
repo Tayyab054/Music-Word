@@ -10,7 +10,6 @@ import authRoutes from "./routes/auth.routes.js";
 import songRoutes from "./routes/song.routes.js";
 import artistRoutes from "./routes/artist.routes.js";
 import libraryRoutes from "./routes/library.routes.js";
-import adminRoutes from "./routes/admin.routes.js";
 import searchRoutes from "./routes/search.routes.js";
 
 const app = express();
@@ -35,7 +34,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/songs", songRoutes);
 app.use("/api/artists", artistRoutes);
 app.use("/api/library", libraryRoutes);
-app.use("/api/admin", adminRoutes);
 app.use("/api/search", searchRoutes);
 
 // Health check

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { IoMdClose } from "react-icons/io";
 import { useAuth } from "../../../context/AuthContext";
 import AuthLayout from "../components/AuthLayout";
 import "../styles/auth.css";
@@ -42,6 +43,14 @@ export default function LoginPage() {
 
   return (
     <AuthLayout title="Spotify" subtitle="Log in to continue">
+      <button
+        type="button"
+        className="auth-close-btn"
+        onClick={() => navigate("/")}
+        aria-label="Close"
+      >
+        <IoMdClose />
+      </button>
       <form onSubmit={handleSubmit} className="auth-form">
         {error && <div className="auth-error">{error}</div>}
 

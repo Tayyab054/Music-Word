@@ -1,6 +1,14 @@
-import { createContext, useContext, useState, useRef, useEffect } from "react";
-import { songsAPI, libraryAPI } from "../api";
+import {
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+} from "react";
+import { songApi } from "../features/songs/api/songApi";
 import { useAuth } from "./AuthContext";
+import LinkedList from "../features/songs/utils/LinkedList";
 
 const PlayerContext = createContext(null);
 
@@ -8,15 +16,86 @@ export function PlayerProvider({ children }) {
   const { isAuthenticated } = useAuth();
 
   const audioRef = useRef(new Audio());
+  const playlistRef = useRef(new LinkedList()); // Using LinkedList for navigation
   const [currentSong, setCurrentSong] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.7);
   const [queue, setQueue] = useState([]);
-  const [queueIndex, setQueueIndex] = useState(0);
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState("none"); // none, one, all
+
+  // Play a song
+  const playSong = useCallback(
+    async (song, playlist = null) => {
+      if (!song?.song_url) return;
+
+      // If playlist provided, set up LinkedList
+      if (playlist && playlist.length > 0) {
+        playlistRef.current.fromArray(playlist);
+        playlistRef.current.setCurrent(song.song_id);
+        setQueue(playlist);
+      } else if (playlistRef.current.isEmpty()) {
+        // Add single song to queue
+        playlistRef.current.fromArray([song]);
+        setQueue([song]);
+      } else {
+        // Update current in existing playlist
+        playlistRef.current.setCurrent(song.song_id);
+      }
+
+      // Set current song and play
+      setCurrentSong(song);
+      audioRef.current.src = song.song_url;
+
+      try {
+        await audioRef.current.play();
+
+        // Record play to history if authenticated
+        if (isAuthenticated) {
+          songApi.play(song.song_id).catch(() => {});
+        }
+      } catch (err) {
+        console.error("Playback error:", err);
+      }
+    },
+    [isAuthenticated]
+  );
+
+  // Next song
+  const handleNext = useCallback(() => {
+    if (playlistRef.current.isEmpty()) return;
+
+    if (repeat === "one") {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play();
+      return;
+    }
+
+    let nextSong;
+    if (shuffle) {
+      const allSongs = playlistRef.current.toArray();
+      const randomIndex = Math.floor(Math.random() * allSongs.length);
+      nextSong = allSongs[randomIndex];
+      playlistRef.current.setCurrent(nextSong.song_id);
+    } else {
+      nextSong = playlistRef.current.getNext();
+      if (!nextSong && repeat === "all") {
+        // Loop back to start
+        nextSong = playlistRef.current.head?.song;
+        if (nextSong) {
+          playlistRef.current.setCurrent(nextSong.song_id);
+        }
+      }
+    }
+
+    if (nextSong) {
+      playSong(nextSong);
+    } else {
+      setIsPlaying(false);
+    }
+  }, [repeat, shuffle, playSong]);
 
   // Audio event listeners
   useEffect(() => {
@@ -41,43 +120,12 @@ export function PlayerProvider({ children }) {
       audio.removeEventListener("play", handlePlay);
       audio.removeEventListener("pause", handlePause);
     };
-  }, [queueIndex, queue, repeat, shuffle]);
+  }, [handleNext]);
 
   // Volume control
   useEffect(() => {
     audioRef.current.volume = volume;
   }, [volume]);
-
-  // Play a song
-  const playSong = async (song, playlist = null) => {
-    if (!song?.song_url) return;
-
-    // If playlist provided, set up queue
-    if (playlist && playlist.length > 0) {
-      const songIndex = playlist.findIndex((s) => s.song_id === song.song_id);
-      setQueue(playlist);
-      setQueueIndex(songIndex >= 0 ? songIndex : 0);
-    } else if (!queue.find((s) => s.song_id === song.song_id)) {
-      // Add single song to queue
-      setQueue([song]);
-      setQueueIndex(0);
-    }
-
-    // Set current song and play
-    setCurrentSong(song);
-    audioRef.current.src = song.song_url;
-
-    try {
-      await audioRef.current.play();
-
-      // Record play to history if authenticated
-      if (isAuthenticated) {
-        songsAPI.play(song.song_id).catch(() => {});
-      }
-    } catch (err) {
-      console.error("Playback error:", err);
-    }
-  };
 
   // Toggle play/pause
   const togglePlay = () => {
@@ -95,39 +143,9 @@ export function PlayerProvider({ children }) {
     audioRef.current.currentTime = time;
   };
 
-  // Next song
-  const handleNext = () => {
-    if (queue.length === 0) return;
-
-    if (repeat === "one") {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play();
-      return;
-    }
-
-    let nextIndex;
-    if (shuffle) {
-      nextIndex = Math.floor(Math.random() * queue.length);
-    } else {
-      nextIndex = queueIndex + 1;
-    }
-
-    if (nextIndex >= queue.length) {
-      if (repeat === "all") {
-        nextIndex = 0;
-      } else {
-        setIsPlaying(false);
-        return;
-      }
-    }
-
-    setQueueIndex(nextIndex);
-    playSong(queue[nextIndex]);
-  };
-
   // Previous song
   const handlePrevious = () => {
-    if (queue.length === 0) return;
+    if (playlistRef.current.isEmpty()) return;
 
     // If more than 3 seconds into song, restart it
     if (currentTime > 3) {
@@ -135,13 +153,17 @@ export function PlayerProvider({ children }) {
       return;
     }
 
-    let prevIndex = queueIndex - 1;
-    if (prevIndex < 0) {
-      prevIndex = repeat === "all" ? queue.length - 1 : 0;
+    const prevSong = playlistRef.current.getPrevious();
+    if (prevSong) {
+      playSong(prevSong);
+    } else if (repeat === "all") {
+      // Loop to end
+      const lastSong = playlistRef.current.tail?.song;
+      if (lastSong) {
+        playlistRef.current.setCurrent(lastSong.song_id);
+        playSong(lastSong);
+      }
     }
-
-    setQueueIndex(prevIndex);
-    playSong(queue[prevIndex]);
   };
 
   // Toggle shuffle
@@ -153,18 +175,20 @@ export function PlayerProvider({ children }) {
   const toggleRepeat = () => {
     const modes = ["none", "all", "one"];
     const currentIndex = modes.indexOf(repeat);
-    setRepeat(modes[(currentIndex + 1) % modes.length]);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    setRepeat(modes[nextIndex]);
   };
 
   // Add to queue
   const addToQueue = (song) => {
+    playlistRef.current.append(song);
     setQueue((prev) => [...prev, song]);
   };
 
   // Clear queue
   const clearQueue = () => {
+    playlistRef.current.clear();
     setQueue([]);
-    setQueueIndex(0);
   };
 
   const value = {
@@ -174,15 +198,14 @@ export function PlayerProvider({ children }) {
     duration,
     volume,
     queue,
-    queueIndex,
     shuffle,
     repeat,
     playSong,
     togglePlay,
     seek,
     setVolume,
-    handleNext,
-    handlePrevious,
+    playNext: handleNext,
+    playPrevious: handlePrevious,
     toggleShuffle,
     toggleRepeat,
     addToQueue,
@@ -201,5 +224,3 @@ export function usePlayer() {
   }
   return context;
 }
-
-export default PlayerContext;

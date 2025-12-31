@@ -457,75 +457,16 @@ export async function resetPassword(req, res) {
 /* ===================== GOOGLE OAUTH ===================== */
 
 export function googleCallback(req, res) {
-  if (req.user.oauthPending) {
-    // New user - create account with Google info
-    req.session.oauth = {
-      email: req.user.email,
-      name: req.user.name,
-    };
-    // Redirect to create account
-    res.redirect(`${process.env.CLIENT_BASE_URL}/oauth-complete`);
-  } else {
-    // Existing user, set session
-    req.session.userId = req.user.user_id;
-    req.session.role = req.user.role;
-    res.redirect(process.env.CLIENT_BASE_URL);
-  }
-}
-
-export async function completeOAuthProfile(req, res) {
-  const oauth = req.session.oauth;
-
-  if (!oauth) {
-    return res.status(401).json({
-      success: false,
-      message: "OAuth session expired.",
-    });
-  }
-
-  try {
-    // Insert user (no password for OAuth users)
-    const { rows } = await db.query(
-      `INSERT INTO users (email, name, role) 
-       VALUES ($1, $2, 'user') 
-       RETURNING user_id, name, email, role`,
-      [oauth.email, oauth.name]
-    );
-
-    const user = rows[0];
-
-    // Add to memory store
-    memoryStore.addUser(user);
-
-    // Set session
-    delete req.session.oauth;
-    req.session.userId = user.user_id;
-    req.session.role = user.role;
-
-    res.json({
-      success: true,
-      message: "Account created successfully.",
-      user: {
-        user_id: user.user_id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } catch (error) {
-    console.error("Complete OAuth profile error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error. Please try again.",
-    });
-  }
+  // User already created or logged in via passport strategy
+  req.session.userId = req.user.user_id;
+  req.session.role = req.user.role;
+  res.redirect(process.env.CLIENT_BASE_URL);
 }
 
 /* ===================== CHECK SESSION STATUS ===================== */
 
 export function checkOtpSession(req, res) {
   const otpSession = req.session.otp;
-  const oauthSession = req.session.oauth;
 
   if (otpSession) {
     return res.json({
@@ -534,16 +475,6 @@ export function checkOtpSession(req, res) {
       flow: otpSession.flow,
       verified: otpSession.verified,
       email: otpSession.email,
-    });
-  }
-
-  if (oauthSession) {
-    return res.json({
-      success: true,
-      hasSession: true,
-      flow: "oauth",
-      email: oauthSession.email,
-      name: oauthSession.name,
     });
   }
 

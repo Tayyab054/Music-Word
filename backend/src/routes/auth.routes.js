@@ -12,12 +12,10 @@ import {
   checkEmailAvailability,
   getCurrentUser,
   googleCallback,
-  completeOAuthProfile,
   checkOtpSession,
 } from "../controllers/auth.controller.js";
 
 import { requireOtpSession } from "../middlewares/otp.middleware.js";
-import { requireOAuthSession } from "../middlewares/oauth.middleware.js";
 import { loginLimiter } from "../middlewares/rateLimiters.middleware.js";
 
 const authRoutes = Router();
@@ -77,21 +75,9 @@ authRoutes.get(
   googleCallback
 );
 
-// Complete OAuth profile
-authRoutes.post("/oauth/complete", requireOAuthSession, completeOAuthProfile);
-
 /* ========================= SESSION CHECKS ========================= */
 
 // Check OTP session status
 authRoutes.get("/otp-session", checkOtpSession);
-
-// OAuth session validation
-authRoutes.get("/oauth-session", requireOAuthSession, (req, res) => {
-  res.json({
-    success: true,
-    email: req.session.oauth.email,
-    name: req.session.oauth.name,
-  });
-});
 
 export default authRoutes;

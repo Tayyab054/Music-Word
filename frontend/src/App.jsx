@@ -3,11 +3,12 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { PlayerProvider } from "./context/PlayerContext";
 
 // Pages
-import Home from "./pages/Home";
-import Playlist from "./pages/Playlist";
-import Library from "./pages/Library";
-import Search from "./pages/Search";
-import Artist from "./pages/Artist";
+import Home from "./features/home/pages/Home";
+import Playlist from "./features/songs/pages/Playlist";
+import Library from "./features/library/pages/Library";
+import History from "./features/history/pages/History";
+import Search from "./features/search/pages/Search";
+import Artist from "./features/artist/pages/Artist";
 
 // Auth Pages
 import LoginPage from "./features/auth/pages/LoginPage";
@@ -15,12 +16,6 @@ import SignUpPage from "./features/auth/pages/SignUpPage";
 import OTPVerificationFormPage from "./features/auth/pages/OTPVerificationFormPage";
 import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "./features/auth/pages/ResetPasswordPage";
-
-// Admin Pages
-import AdminDashboard from "./pages/admin/Dashboard";
-import AdminSongs from "./pages/admin/Songs";
-import AdminArtists from "./pages/admin/Artists";
-import AdminUsers from "./pages/admin/Users";
 
 import "./App.css";
 
@@ -69,7 +64,7 @@ function AppRoutes() {
 
       {/* Auth Routes (Guest Only) */}
       <Route
-        path="/login"
+        path="/auth/login"
         element={
           <GuestRoute>
             <LoginPage />
@@ -77,23 +72,27 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/signup"
+        path="/auth/signup"
         element={
           <GuestRoute>
             <SignUpPage />
           </GuestRoute>
         }
       />
-      <Route path="/verify-otp" element={<OTPVerificationFormPage />} />
+      <Route path="/auth/verify-otp" element={<OTPVerificationFormPage />} />
       <Route
-        path="/forgot-password"
+        path="/auth/forgot-password"
         element={
           <GuestRoute>
             <ForgotPasswordPage />
           </GuestRoute>
         }
       />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+
+      {/* Backward compatibility routes */}
+      <Route path="/login" element={<Navigate to="/auth/login" replace />} />
+      <Route path="/signup" element={<Navigate to="/auth/signup" replace />} />
 
       {/* Protected Routes (User) */}
       <Route
@@ -104,37 +103,11 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
-      {/* Admin Routes */}
       <Route
-        path="/admin"
+        path="/history"
         element={
-          <ProtectedRoute adminOnly>
-            <AdminDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/songs"
-        element={
-          <ProtectedRoute adminOnly>
-            <AdminSongs />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/artists"
-        element={
-          <ProtectedRoute adminOnly>
-            <AdminArtists />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/users"
-        element={
-          <ProtectedRoute adminOnly>
-            <AdminUsers />
+          <ProtectedRoute>
+            <History />
           </ProtectedRoute>
         }
       />

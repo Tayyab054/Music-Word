@@ -6,6 +6,7 @@ import {
   removeFromLibrary,
   checkInLibrary,
   getHistory,
+  clearHistory,
 } from "../controllers/library.controller.js";
 
 const libraryRoutes = Router();
@@ -18,6 +19,9 @@ libraryRoutes.get("/", getLibrary);
 
 // Get play history
 libraryRoutes.get("/history", getHistory);
+
+// Clear play history
+libraryRoutes.delete("/history", clearHistory);
 
 // Check if song is in library
 libraryRoutes.get("/check/:songId", checkInLibrary);

@@ -1,0 +1,147 @@
+/* ========================= GRID ========================= */
+.playlist-grid {
+  display: grid;
+  gap: 0.4rem;
+}
+
+/* ========================= SONG ROW ========================= */
+.song-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.song-row:hover,
+.song-row.active {
+  background: #222;
+}
+
+/* ========================= LEFT ========================= */
+.song-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ========================= IMAGE ========================= */
+.song-image-wrapper {
+  position: relative;
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.song-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  transition: opacity 0.2s ease;
+}
+
+/* Dim image on hover / playing */
+.song-row:hover img,
+.song-row.active img {
+  opacity: 0.35;
+}
+
+/* ========================= PLAY BUTTON ========================= */
+.play-btn {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #1db954;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(29, 185, 84, 0.35);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+/* Hidden by default */
+.play-btn {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* Visible ONLY when playing */
+.play-btn.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Visible ONLY on hover */
+.song-row:hover .play-btn.hover-only {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ========================= SONG INFO ========================= */
+.song-info h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.song-info p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #b3b3b3;
+}
+
+/* Active song title */
+.song-row.active .song-info h4 {
+  color: #1db954;
+}
+
+/* ========================= MENU ========================= */
+.song-actions {
+  position: relative;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  color: #b3b3b3;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.menu-btn:hover {
+  color: #fff;
+}
+
+.song-menu {
+  position: absolute;
+  right: 0;
+  top: 2rem;
+  background: #282828;
+  border-radius: 0.5rem;
+  padding: 0.4rem;
+  min-width: 160px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+}
+
+.song-menu button {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #eaeaea;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.song-menu button:hover {
+  background: #3a3a3a;
+}

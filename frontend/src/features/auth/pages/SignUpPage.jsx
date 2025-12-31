@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { IoMdClose } from "react-icons/io";
 import { useAuth } from "../../../context/AuthContext";
-import { authAPI } from "../../../api";
+import { authApi } from "../api/authApi";
 import AuthLayout from "../components/AuthLayout";
 import "../styles/auth.css";
 
@@ -73,11 +74,19 @@ export default function SignUpPage() {
   };
 
   const handleGoogleSignup = () => {
-    window.location.href = authAPI.googleAuthUrl;
+    window.location.href = authApi.googleAuthUrl;
   };
 
   return (
     <AuthLayout title="Spotify" subtitle="Sign up for free">
+      <button
+        type="button"
+        className="auth-close-btn"
+        onClick={() => navigate("/")}
+        aria-label="Close"
+      >
+        <IoMdClose />
+      </button>
       <form onSubmit={handleSubmit} className="auth-form">
         {errors.general && <div className="auth-error">{errors.general}</div>}
 

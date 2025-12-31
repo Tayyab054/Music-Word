@@ -1,4 +1,4 @@
-import InputField from "@/components/InputField";
+import InputField from "./InputField";
 import CountryDropdown from "./CountryDropdown";
 import { UserCircle, User, Mail, Lock } from "lucide-react";
 

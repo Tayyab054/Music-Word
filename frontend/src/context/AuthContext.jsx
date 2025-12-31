@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { authAPI } from "../api";
+import { authApi } from "../features/auth/api/authApi";
 
 const AuthContext = createContext(null);
 
@@ -16,8 +16,8 @@ export function AuthProvider({ children }) {
   const checkAuth = async () => {
     try {
       setLoading(true);
-      const data = await authAPI.me();
-      setUser(data.user);
+      const response = await authApi.me();
+      setUser(response.data?.user);
       setError(null);
     } catch (err) {
       setUser(null);
@@ -32,10 +32,10 @@ export function AuthProvider({ children }) {
 
   const login = async (identifier, password) => {
     try {
-      const data = await authAPI.login(identifier, password);
-      setUser(data.user);
+      const response = await authApi.login(identifier, password);
+      setUser(response.data?.user);
       setError(null);
-      return { success: true, user: data.user };
+      return { success: true, user: response.data?.user };
     } catch (err) {
       setError(err.message);
       return { success: false, message: err.message };
@@ -44,7 +44,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await authAPI.logout();
+      await authApi.logout();
       setUser(null);
       setError(null);
       return { success: true };
@@ -56,8 +56,8 @@ export function AuthProvider({ children }) {
 
   const register = async (email, password, name) => {
     try {
-      const data = await authAPI.register({ email, password, name });
-      return { success: true, message: data.message };
+      const response = await authApi.register({ email, password, name });
+      return { success: true, message: response.data?.message };
     } catch (err) {
       return { success: false, message: err.message };
     }
@@ -65,12 +65,12 @@ export function AuthProvider({ children }) {
 
   const verifyOtp = async (otp) => {
     try {
-      const data = await authAPI.verifyOtp(otp);
+      const response = await authApi.verifyOtp(otp);
       // If signup flow, user is created and returned
-      if (data.user) {
-        setUser(data.user);
+      if (response.data?.user) {
+        setUser(response.data.user);
       }
-      return { success: true, ...data };
+      return { success: true, ...response.data };
     } catch (err) {
       return { success: false, message: err.message, ...err };
     }
@@ -78,8 +78,8 @@ export function AuthProvider({ children }) {
 
   const resendOtp = async () => {
     try {
-      const data = await authAPI.resendOtp();
-      return { success: true, ...data };
+      const response = await authApi.resendOtp();
+      return { success: true, ...response.data };
     } catch (err) {
       return { success: false, message: err.message };
     }
@@ -87,8 +87,8 @@ export function AuthProvider({ children }) {
 
   const forgotPassword = async (email) => {
     try {
-      const data = await authAPI.forgotPassword(email);
-      return { success: true, message: data.message };
+      const response = await authApi.forgotPassword(email);
+      return { success: true, message: response.data?.message };
     } catch (err) {
       return { success: false, message: err.message };
     }
@@ -96,8 +96,8 @@ export function AuthProvider({ children }) {
 
   const resetPassword = async (password) => {
     try {
-      const data = await authAPI.resetPassword(password);
-      return { success: true, message: data.message };
+      const response = await authApi.resetPassword(password);
+      return { success: true, message: response.data?.message };
     } catch (err) {
       return { success: false, message: err.message };
     }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
-import { authAPI } from "../../../api";
+import { authApi } from "../api/authApi";
 import AuthLayout from "../components/AuthLayout";
 import "../styles/auth.css";
 
@@ -20,7 +20,7 @@ export default function OTPVerificationFormPage() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const data = await authAPI.checkOtpSession();
+        const data = await authApi.checkOtpSession();
         if (data.hasSession) {
           setSessionInfo(data);
         } else {

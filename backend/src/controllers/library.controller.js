@@ -101,11 +101,28 @@ export function getHistory(req, res) {
 
     res.json({
       success: true,
-      songs: history,
+      history: history,
       count: history.length,
     });
   } catch (error) {
     console.error("Get history error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+// Clear user's play history
+export async function clearHistory(req, res) {
+  try {
+    const userId = req.session.userId;
+
+    await memoryStore.clearUserHistory(userId);
+
+    res.json({
+      success: true,
+      message: "History cleared",
+    });
+  } catch (error) {
+    console.error("Clear history error:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 }

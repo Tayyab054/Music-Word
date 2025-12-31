@@ -6,40 +6,53 @@ import db from "./db.config.js";
 import memoryStore from "../store/memoryStore.js";
 
 export default function setupPassport() {
-  passport.use(
-    new GoogleStrategy(
-      {
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "/api/auth/google/callback",
-      },
-      async (_, __, profile, done) => {
-        try {
-          const email = profile.emails?.[0]?.value;
-          const name = profile.displayName;
+  // Only setup Google OAuth if credentials are provided
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    passport.use(
+      new GoogleStrategy(
+        {
+          clientID: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          callbackURL: "/api/auth/google/callback",
+        },
+        async (_, __, profile, done) => {
+          try {
+            const email = profile.emails?.[0]?.value;
+            const name = profile.displayName;
 
-          const { rows } = await db.query(
-            "SELECT user_id, role FROM users WHERE email = $1",
-            [email]
-          );
+            const { rows } = await db.query(
+              "SELECT user_id, role, name, email FROM users WHERE email = $1",
+              [email]
+            );
 
-          // Existing user → login directly
-          if (rows.length > 0) {
-            return done(null, { user_id: rows[0].user_id, role: rows[0].role });
+            // Existing user → login directly
+            if (rows.length > 0) {
+              const user = rows[0];
+              memoryStore.addUser(user);
+              return done(null, { user_id: user.user_id, role: user.role });
+            }
+
+            // New user → Create account directly with Google info
+            const { rows: newUserRows } = await db.query(
+              `INSERT INTO users (email, name, role) 
+               VALUES ($1, $2, 'user') 
+               RETURNING user_id, name, email, role`,
+              [email, name]
+            );
+
+            const newUser = newUserRows[0];
+            memoryStore.addUser(newUser);
+
+            return done(null, { user_id: newUser.user_id, role: newUser.role });
+          } catch (err) {
+            done(err);
           }
-
-          // New user → TEMP session data (need to complete profile)
-          return done(null, {
-            oauthPending: true,
-            email,
-            name,
-          });
-        } catch (err) {
-          done(err);
         }
-      }
-    )
-  );
+      )
+    );
+  } else {
+    console.warn("⚠️  Google OAuth credentials not found - OAuth disabled");
+  }
 
   passport.use(
     "local",

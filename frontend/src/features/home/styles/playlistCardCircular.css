@@ -1,0 +1,171 @@
+/* Circular Card Styles */
+.circular-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.circular-card:hover {
+  transform: translateY(-8px);
+}
+
+.circular-card-image {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.circular-card:hover .circular-card-image {
+  box-shadow: 0 12px 32px rgba(29, 185, 84, 0.3);
+}
+
+.circular-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.circular-card-image .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.circular-card:hover .circular-card-image .overlay {
+  opacity: 1;
+}
+
+.play-button {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1db954 0%, #1ed760 100%);
+  color: black;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(29, 185, 84, 0.4);
+}
+
+.play-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(29, 185, 84, 0.5);
+}
+
+.play-button:active {
+  transform: scale(0.95);
+}
+
+.card-info {
+  text-align: center;
+  width: 100%;
+}
+
+.card-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-info p {
+  font-size: 13px;
+  color: #b3b3b3;
+  margin: 4px 0 0 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .circular-card-image {
+    width: 160px;
+    height: 160px;
+  }
+
+  .card-info h3 {
+    font-size: 15px;
+  }
+
+  .card-info p {
+    font-size: 12px;
+  }
+
+  .play-button {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .circular-card {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .circular-card-image {
+    width: 140px;
+    height: 140px;
+  }
+
+  .card-info h3 {
+    font-size: 14px;
+  }
+
+  .card-info p {
+    font-size: 11px;
+  }
+
+  .play-button {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .circular-card {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .circular-card-image {
+    width: 120px;
+    height: 120px;
+  }
+
+  .card-info h3 {
+    font-size: 13px;
+  }
+
+  .card-info p {
+    font-size: 10px;
+  }
+
+  .play-button {
+    width: 40px;
+    height: 40px;
+  }
+}
