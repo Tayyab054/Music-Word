@@ -263,7 +263,6 @@ class MemoryStore {
       updatedSong.image_url = `https://picsum.photos/seed/song-${updatedSong.song_id}/400`;
     }
 
-    // Add artist info
     const artist = this.artists.get(updatedSong.artist_id);
     if (artist) {
       updatedSong.artist_name = artist.artist_name;
@@ -598,7 +597,6 @@ class MemoryStore {
   }
 }
 
-// Singleton instance
 const memoryStore = new MemoryStore();
 
 export default memoryStore;

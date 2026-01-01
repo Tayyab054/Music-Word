@@ -113,21 +113,18 @@ export default function Artist() {
       <Navbar />
 
       <main className="artist-page">
-        <header
-          className="artist-header"
-          style={{
-            backgroundImage: artist.image_url
-              ? `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url(${artist.image_url})`
-              : undefined,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            minHeight: "340px",
-          }}
-        >
+        <header className="artist-header">
           <div className="artist-info">
             <span className="verified">✓ Verified Artist</span>
             <h1>{artist.artist_name}</h1>
             <p className="category">{artist.category}</p>
+          </div>
+          <div className="artist-header-image-container">
+            <img
+              src={artist.image_url || "/default-artist.png"}
+              alt={artist.artist_name}
+              className="artist-header-img"
+            />
           </div>
         </header>
 

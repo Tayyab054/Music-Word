@@ -7,7 +7,6 @@ import {
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { PlayerProvider } from "./context/PlayerContext";
 
-// Pages
 import Home from "./features/home/pages/Home";
 import Playlist from "./features/songs/pages/Playlist";
 import Library from "./features/library/pages/Library";
@@ -15,14 +14,12 @@ import History from "./features/history/pages/History";
 import Search from "./features/search/pages/Search";
 import Artist from "./features/artist/pages/Artist";
 
-// Auth Pages
 import LoginPage from "./features/auth/pages/LoginPage";
 import SignUpPage from "./features/auth/pages/SignUpPage";
 import OTPVerificationFormPage from "./features/auth/pages/OTPVerificationFormPage";
 import ForgotPasswordPage from "./features/auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "./features/auth/pages/ResetPasswordPage";
 
-// Loading component
 function LoadingScreen() {
   return (
     <div className="loading-screen">
@@ -32,7 +29,6 @@ function LoadingScreen() {
   );
 }
 
-// Protected route wrapper component
 function ProtectedRoute({ adminOnly = false }) {
   const { isAuthenticated, isAdmin, loading } = useAuth();
 
@@ -51,7 +47,6 @@ function ProtectedRoute({ adminOnly = false }) {
   return <Outlet />;
 }
 
-// Guest route wrapper (for login/signup pages - redirects if already logged in)
 function GuestRoute() {
   const { isAuthenticated, loading } = useAuth();
 
@@ -66,7 +61,6 @@ function GuestRoute() {
   return <Outlet />;
 }
 
-// App layout wrapper with providers
 function AppLayout() {
   return (
     <PlayerProvider>
@@ -75,12 +69,10 @@ function AppLayout() {
   );
 }
 
-// Router configuration
 const router = createBrowserRouter([
   {
     element: <AppLayout />,
     children: [
-      // Public Routes
       {
         path: "/",
         element: <Home />,
@@ -97,8 +89,6 @@ const router = createBrowserRouter([
         path: "/playlist/:playlistId",
         element: <Playlist />,
       },
-
-      // Auth Routes (Guest Only)
       {
         element: <GuestRoute />,
         children: [
@@ -116,8 +106,6 @@ const router = createBrowserRouter([
           },
         ],
       },
-
-      // Auth Routes (accessible during OTP flow)
       {
         path: "/auth/verify-otp",
         element: <OTPVerificationFormPage />,
@@ -126,8 +114,6 @@ const router = createBrowserRouter([
         path: "/auth/reset-password",
         element: <ResetPasswordPage />,
       },
-
-      // Protected Routes (User)
       {
         element: <ProtectedRoute />,
         children: [
@@ -141,8 +127,6 @@ const router = createBrowserRouter([
           },
         ],
       },
-
-      // Backward compatibility redirects
       {
         path: "/login",
         element: <Navigate to="/auth/login" replace />,
@@ -163,8 +147,6 @@ const router = createBrowserRouter([
         path: "/reset-password",
         element: <Navigate to="/auth/reset-password" replace />,
       },
-
-      // Fallback - catch all
       {
         path: "*",
         element: <Navigate to="/" replace />,
@@ -173,7 +155,6 @@ const router = createBrowserRouter([
   },
 ]);
 
-// Main App component
 function App() {
   return (
     <AuthProvider>

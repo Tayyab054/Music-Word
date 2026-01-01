@@ -1,7 +1,5 @@
-/**
- * Doubly Linked List Implementation
- * Used for maintaining ordered collections, playlists, and history
- */
+// Doubly Linked List - Used for ordered collections, playlists, and history
+
 class ListNode {
   constructor(data) {
     this.data = data;
@@ -17,7 +15,6 @@ class LinkedList {
     this.size = 0;
   }
 
-  // Add to end - O(1)
   append(data) {
     const newNode = new ListNode(data);
 
@@ -33,7 +30,6 @@ class LinkedList {
     return newNode;
   }
 
-  // Add to beginning - O(1)
   prepend(data) {
     const newNode = new ListNode(data);
 
@@ -49,7 +45,6 @@ class LinkedList {
     return newNode;
   }
 
-  // Insert at index - O(n)
   insertAt(data, index) {
     if (index < 0 || index > this.size) return null;
     if (index === 0) return this.prepend(data);
@@ -72,7 +67,6 @@ class LinkedList {
     return newNode;
   }
 
-  // Remove by data (first occurrence) - O(n)
   remove(data, compareFn = (a, b) => a === b) {
     let current = this.head;
 
@@ -85,7 +79,6 @@ class LinkedList {
     return null;
   }
 
-  // Remove specific node - O(1)
   removeNode(node) {
     if (!node) return null;
 
@@ -105,19 +98,16 @@ class LinkedList {
     return node.data;
   }
 
-  // Remove from end - O(1)
   removeLast() {
     if (!this.tail) return null;
     return this.removeNode(this.tail);
   }
 
-  // Remove from beginning - O(1)
   removeFirst() {
     if (!this.head) return null;
     return this.removeNode(this.head);
   }
 
-  // Find by predicate - O(n)
   find(predicate) {
     let current = this.head;
     while (current) {
@@ -129,7 +119,6 @@ class LinkedList {
     return null;
   }
 
-  // Find node by predicate - O(n)
   findNode(predicate) {
     let current = this.head;
     while (current) {
@@ -141,7 +130,6 @@ class LinkedList {
     return null;
   }
 
-  // Check if contains - O(n)
   contains(data, compareFn = (a, b) => a === b) {
     let current = this.head;
     while (current) {
@@ -153,7 +141,6 @@ class LinkedList {
     return false;
   }
 
-  // Convert to array - O(n)
   toArray() {
     const result = [];
     let current = this.head;
@@ -164,7 +151,6 @@ class LinkedList {
     return result;
   }
 
-  // Convert to array reversed - O(n)
   toArrayReversed() {
     const result = [];
     let current = this.tail;
@@ -175,7 +161,6 @@ class LinkedList {
     return result;
   }
 
-  // Get by index - O(n)
   getAt(index) {
     if (index < 0 || index >= this.size) return null;
 
@@ -194,24 +179,20 @@ class LinkedList {
     return current.data;
   }
 
-  // Get size
   getSize() {
     return this.size;
   }
 
-  // Check if empty
   isEmpty() {
     return this.size === 0;
   }
 
-  // Clear all
   clear() {
     this.head = null;
     this.tail = null;
     this.size = 0;
   }
 
-  // Iterate with callback
   forEach(callback) {
     let current = this.head;
     let index = 0;
@@ -222,7 +203,6 @@ class LinkedList {
     }
   }
 
-  // Filter and return new list
   filter(predicate) {
     const newList = new LinkedList();
     let current = this.head;
@@ -235,7 +215,6 @@ class LinkedList {
     return newList;
   }
 
-  // Map and return new list
   map(transform) {
     const newList = new LinkedList();
     let current = this.head;

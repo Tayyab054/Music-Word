@@ -1,4 +1,3 @@
-// ========== HOME PAGE ==========
 export function groupArtistsByCategory(artists) {
   const map = {};
 
@@ -14,7 +13,6 @@ export function groupArtistsByCategory(artists) {
   return map;
 }
 
-// ========== PLAYLIST PAGE ==========
 export function groupSongsByPlaylist(songs) {
   const map = {};
 

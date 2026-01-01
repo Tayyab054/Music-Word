@@ -1,19 +1,3 @@
-/**
- * Library Page
- * ============
- * Displays user's saved songs.
- *
- * DATA STRUCTURE: Doubly Linked List (via useLibraryList hook)
- * ------------------------------------------------------------
- * - Songs are stored in a DLL for efficient playlist operations
- * - O(1) add to library
- * - O(n) remove from library (need to find the song first)
- * - Natural ordering for playlist playback
- *
- * The hook abstracts the DLL operations, providing a simple
- * songs array for React rendering.
- */
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
@@ -37,6 +21,7 @@ const Library = () => {
       navigate("/auth/login");
       return;
     }
+    // eslint-disable-next-line react-hooks/immutability
     loadLibrary();
   }, [isAuthenticated, navigate]);
 

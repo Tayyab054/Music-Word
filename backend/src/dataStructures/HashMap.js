@@ -1,7 +1,5 @@
-/**
- * HashMap Implementation using Separate Chaining
- * Used for O(1) average lookup of songs, artists, users by ID
- */
+// HashMap using Separate Chaining - Used for O(1) lookup of songs, artists, users
+
 class HashNode {
   constructor(key, value) {
     this.key = key;
@@ -17,7 +15,6 @@ class HashMap {
     this.count = 0;
   }
 
-  // Hash function for any key type
   _hash(key) {
     const strKey = String(key);
     let hash = 0;
@@ -27,7 +24,6 @@ class HashMap {
     return hash;
   }
 
-  // Insert or update a key-value pair - O(1) average
   set(key, value) {
     const index = this._hash(key);
     const newNode = new HashNode(key, value);
@@ -41,7 +37,7 @@ class HashMap {
     let current = this.buckets[index];
     while (current) {
       if (current.key === key) {
-        current.value = value; // Update existing
+        current.value = value;
         return;
       }
       if (!current.next) {
@@ -53,7 +49,6 @@ class HashMap {
     }
   }
 
-  // Get value by key - O(1) average
   get(key) {
     const index = this._hash(key);
     let current = this.buckets[index];
@@ -67,12 +62,10 @@ class HashMap {
     return undefined;
   }
 
-  // Check if key exists - O(1) average
   has(key) {
     return this.get(key) !== undefined;
   }
 
-  // Delete by key - O(1) average
   delete(key) {
     const index = this._hash(key);
     let current = this.buckets[index];
@@ -94,7 +87,6 @@ class HashMap {
     return false;
   }
 
-  // Get all values - O(n)
   values() {
     const result = [];
     for (const bucket of this.buckets) {
@@ -107,7 +99,6 @@ class HashMap {
     return result;
   }
 
-  // Get all keys - O(n)
   keys() {
     const result = [];
     for (const bucket of this.buckets) {
@@ -120,7 +111,6 @@ class HashMap {
     return result;
   }
 
-  // Get all entries - O(n)
   entries() {
     const result = [];
     for (const bucket of this.buckets) {
@@ -133,12 +123,10 @@ class HashMap {
     return result;
   }
 
-  // Get count
   getSize() {
     return this.count;
   }
 
-  // Clear all
   clear() {
     this.buckets = new Array(this.size).fill(null);
     this.count = 0;

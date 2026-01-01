@@ -1,7 +1,5 @@
-/**
- * Queue Implementation (FIFO)
- * Used for song playback queue, recently played processing
- */
+// Queue (FIFO) - Used for song playback queue, recently played processing
+
 class QueueNode {
   constructor(data) {
     this.data = data;
@@ -17,10 +15,9 @@ class Queue {
     this.maxSize = maxSize;
   }
 
-  // Add to rear - O(1)
   enqueue(data) {
     if (this.size >= this.maxSize) {
-      this.dequeue(); // Remove oldest if at capacity
+      this.dequeue();
     }
 
     const newNode = new QueueNode(data);
@@ -36,7 +33,6 @@ class Queue {
     return data;
   }
 
-  // Remove from front - O(1)
   dequeue() {
     if (!this.front) return null;
 
@@ -50,32 +46,26 @@ class Queue {
     return data;
   }
 
-  // Peek at front - O(1)
   peek() {
     return this.front ? this.front.data : null;
   }
 
-  // Peek at rear - O(1)
   peekRear() {
     return this.rear ? this.rear.data : null;
   }
 
-  // Check if empty
   isEmpty() {
     return this.size === 0;
   }
 
-  // Check if full
   isFull() {
     return this.size >= this.maxSize;
   }
 
-  // Get size
   getSize() {
     return this.size;
   }
 
-  // Convert to array - O(n)
   toArray() {
     const result = [];
     let current = this.front;
@@ -86,14 +76,12 @@ class Queue {
     return result;
   }
 
-  // Clear all
   clear() {
     this.front = null;
     this.rear = null;
     this.size = 0;
   }
 
-  // Check if contains - O(n)
   contains(data, compareFn = (a, b) => a === b) {
     let current = this.front;
     while (current) {
@@ -105,11 +93,9 @@ class Queue {
     return false;
   }
 
-  // Remove specific item - O(n)
   remove(data, compareFn = (a, b) => a === b) {
     if (!this.front) return null;
 
-    // If front is the target
     if (compareFn(this.front.data, data)) {
       return this.dequeue();
     }

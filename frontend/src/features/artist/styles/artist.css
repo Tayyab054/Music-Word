@@ -10,12 +10,29 @@
 /* Artist Header */
 .artist-header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: space-between;
   gap: 24px;
-  padding: 80px 32px 48px;
-  background: linear-gradient(180deg, rgba(83, 83, 83, 0.8) 0%, #121212 100%);
+  padding: 100px 48px 48px;
+  background: linear-gradient(90deg, #121212 0%, #1a1a1a 50%, #121212 100%);
   position: relative;
   overflow: hidden;
+  min-height: 450px;
+}
+
+.artist-header-image-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 50%;
+}
+
+.artist-header-img {
+  max-height: 400px;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 .artist-header::before {
@@ -36,6 +53,29 @@
 .artist-info {
   position: relative;
   z-index: 2;
+  flex: 1;
+  max-width: 50%;
+}
+
+.artist-info .verified {
+  font-size: 0.9rem;
+  color: #b3b3b3;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.artist-info h1 {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 900;
+  color: #fff;
+  margin: 0 0 12px;
+  line-height: 1.1;
+}
+
+.artist-info .category {
+  font-size: 1rem;
+  color: #b3b3b3;
+  margin: 0;
 }
 
 .artist-header-image {
@@ -353,6 +393,17 @@
   margin: 0 0 24px;
 }
 
+.related-section {
+  padding: 40px 32px;
+}
+
+.related-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 24px;
+}
+
 .related-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -367,11 +418,38 @@
   cursor: pointer;
   transition: all 0.3s;
   text-decoration: none;
+  overflow: hidden;
 }
 
 .related-card:hover {
   background: rgba(255, 255, 255, 0.1);
   transform: translateY(-4px);
+}
+
+.related-card img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #282828;
+  margin: 0 auto 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  display: block;
+}
+
+.related-card h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.related-card span {
+  font-size: 0.8rem;
+  color: #b3b3b3;
 }
 
 .related-image {
@@ -439,7 +517,27 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding: 32px 16px;
+    padding: 80px 16px 32px;
+    min-height: auto;
+  }
+
+  .artist-info {
+    max-width: 100%;
+    order: 2;
+  }
+
+  .artist-header-image-container {
+    max-width: 80%;
+    order: 1;
+    margin-bottom: 24px;
+  }
+
+  .artist-header-img {
+    max-height: 280px;
+  }
+
+  .artist-info h1 {
+    font-size: 2rem;
   }
 
   .artist-header-image {
@@ -476,7 +574,8 @@
     display: none;
   }
 
-  .related-artists {
+  .related-artists,
+  .related-section {
     padding: 32px 16px;
   }
 
@@ -485,7 +584,8 @@
     gap: 16px;
   }
 
-  .related-image {
+  .related-image,
+  .related-card img {
     width: 100px;
     height: 100px;
   }

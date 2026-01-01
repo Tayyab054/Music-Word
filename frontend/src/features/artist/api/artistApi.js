@@ -1,14 +1,5 @@
 import { apiClient } from "../../../api/apiClient";
 
-/**
- * Artist API
- * ==========
- * API calls for artist-related operations.
- *
- * CACHING NOTE:
- * Backend uses in-memory cache (Map + Trie) for fast lookups.
- * No need for frontend caching for this small dataset.
- */
 export const artistApi = {
   /**
    * Get all artists
@@ -22,7 +13,6 @@ export const artistApi = {
 
   /**
    * Get artist's playlist (songs only)
-   * Uses in-memory cache on backend - no DB hit
    */
   getPlaylist: (id) => apiClient.get(`/api/artists/${id}/playlist`),
 

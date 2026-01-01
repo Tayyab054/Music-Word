@@ -20,44 +20,19 @@ import { loginLimiter } from "../middlewares/rateLimiters.middleware.js";
 
 const authRoutes = Router();
 
-/* ========================= SIGNUP FLOW ========================= */
-
-// Step 1: Register new user (send OTP)
 authRoutes.post("/register", signUp);
-
-// Step 2: Verify OTP (creates account for signup flow)
 authRoutes.post("/verify-otp", requireOtpSession, verifyOtp);
-
-// Resend OTP
 authRoutes.post("/resend-otp", resendOtp);
 
-/* ========================= LOGIN/LOGOUT ========================= */
-
-// Login with email & password
 authRoutes.post("/login", loginLimiter, login);
-
-// Logout user
 authRoutes.post("/logout", logout);
-
-// Get current authenticated user
 authRoutes.get("/me", getCurrentUser);
 
-/* ========================= PASSWORD RESET ========================= */
-
-// Start forgot-password flow (send OTP)
 authRoutes.post("/forgot-password", forgotPassword);
-
-// Reset password after OTP verification
 authRoutes.post("/reset-password", requireOtpSession, resetPassword);
 
-/* ========================= AVAILABILITY CHECKS ========================= */
-
-// Check if email exists
 authRoutes.post("/check-email", checkEmailAvailability);
 
-/* ========================= GOOGLE OAUTH ========================= */
-
-// Redirect to Google OAuth
 authRoutes.get(
   "/google",
   passport.authenticate("google", {
@@ -65,7 +40,6 @@ authRoutes.get(
   })
 );
 
-// Google OAuth callback
 authRoutes.get(
   "/google/callback",
   passport.authenticate("google", {
@@ -75,9 +49,6 @@ authRoutes.get(
   googleCallback
 );
 
-/* ========================= SESSION CHECKS ========================= */
-
-// Check OTP session status
 authRoutes.get("/otp-session", checkOtpSession);
 
 export default authRoutes;

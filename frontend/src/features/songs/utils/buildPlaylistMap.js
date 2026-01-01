@@ -1,5 +1,5 @@
 export function buildPlaylistMap(songs) {
-  const map = {}; // Hash Map
+  const map = {};
 
   for (let i = 0; i < songs.length; i++) {
     const song = songs[i];
